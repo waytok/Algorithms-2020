@@ -2,6 +2,11 @@ package lesson1;
 
 import kotlin.NotImplementedError;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 @SuppressWarnings("unused")
 public class JavaTasks {
     /**
@@ -97,9 +102,36 @@ public class JavaTasks {
      * 24.7
      * 99.5
      * 121.3
+     *
+     * сложность O(n)
+     * память S(n)
      */
-    static public void sortTemperatures(String inputName, String outputName) {
-        throw new NotImplementedError();
+
+    static public void sortTemperatures(String inputName, String outputName) throws IOException {
+        ArrayList<Integer> inputList = new ArrayList<>();
+        FileReader fileReader = new FileReader(new File(inputName));
+        BufferedReader reader = new BufferedReader(fileReader);
+        String line = reader.readLine();
+        while (line != null) {
+            if (line.contains("-"))
+                inputList.add(Integer.parseInt(line.split("\\.")[0])*10-
+                    Integer.parseInt(line.split("\\.")[1])+2730);
+            else
+                inputList.add((Integer.parseInt(line.split("\\.")[0])*10+
+                        Integer.parseInt(line.split("\\.")[1]))+2730);
+            line = reader.readLine();
+        }
+        reader.close();
+        int[] increased = new int[inputList.size()];
+        for (int i = 0; i < inputList.size(); i++) {increased[i] = inputList.get(i);}
+        int[] sorted = Sorts.countingSort(increased, 7730);
+        FileWriter fileWriter = new FileWriter(new File(outputName));
+        BufferedWriter writer = new BufferedWriter(fileWriter);
+        for (int i = 0; i < inputList.size(); i++) {
+            writer.write(Double.toString((sorted[i]*1.0- 2730.0)/10));
+            writer.newLine();
+        }
+        writer.close();
     }
 
     /**
@@ -130,9 +162,44 @@ public class JavaTasks {
      * 2
      * 2
      * 2
+     *
+     * сложность O(n)
+     * память S(n)
      */
-    static public void sortSequence(String inputName, String outputName) {
-        throw new NotImplementedError();
+    static public void sortSequence(String inputName, String outputName) throws IOException {
+        ArrayList<Integer> inputList = new ArrayList<>();
+        FileReader fileReader = new FileReader(new File(inputName));
+        BufferedReader reader = new BufferedReader(fileReader);
+        String line = reader.readLine();
+        while (line != null) {
+            inputList.add(Integer.parseInt(line));
+            line = reader.readLine();
+        }
+        reader.close();
+        int size = inputList.size();
+        Map<Integer, Integer> repetitions = new HashMap<>();
+        for (int i: inputList) repetitions.put(i, repetitions.getOrDefault(i, 0)+1);
+        int number = 1;
+        int maxRepetitions = 1;
+        for (int i : repetitions.keySet()) {
+            if (repetitions.get(i) > maxRepetitions) {
+                maxRepetitions = repetitions.get(i);
+                number = i;
+            }
+            else if (repetitions.get(i) == maxRepetitions && i < number) number = i;
+        }
+        FileWriter fileWriter = new FileWriter(new File(outputName));
+        BufferedWriter writer = new BufferedWriter(fileWriter);
+        for (Integer integer : inputList)
+            if (integer != number) {
+                writer.write(Integer.toString(integer));
+                writer.newLine();
+            }
+        for (int i = 0; i < maxRepetitions; i++) {
+            writer.write(Integer.toString(number));
+            writer.newLine();
+        }
+        writer.close();
     }
 
     /**

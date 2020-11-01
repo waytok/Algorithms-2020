@@ -3,6 +3,8 @@ package lesson2;
 import kotlin.NotImplementedError;
 import kotlin.Pair;
 
+import static java.lang.Math.sqrt;
+
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
     /**
@@ -96,9 +98,47 @@ public class JavaAlgorithms {
      * При сравнении подстрок, регистр символов *имеет* значение.
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
+     *
+     * сложность O(m*n)
+     * память S(1)
      */
-    static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
+    static public String longestCommonSubstring(String first, String second) {
+        int firstLetter = -1;
+        int maxLength = 0;
+        int currentLength;
+        // Рассматриваем элементы в таблице по диагоналям, запоминая длину наибольшей общей подстроки и индекс ее первого элемента.
+        // Сначала рассматриваем главную диагональ и диагонали ниже.
+        // Если j+i-й элемент второй последовательности равен i элементу первой, увеличиваем длину общей подстроки на 1.
+        // Если элементы не равны, приравниваем нулю длину рассматриваемой общей подстроки.
+        for (int i = 0; i < second.length(); i++) {
+            currentLength = 0;
+            for (int j = 0; j+i < second.length() && j < first.length(); j++)
+                if (first.charAt(j) == second.charAt(i + j)) {
+                    currentLength += 1;
+                    if (currentLength == maxLength && firstLetter > j - maxLength + 1)
+                        firstLetter = j - maxLength + 1;
+                    if (currentLength > maxLength) {
+                        maxLength = currentLength;
+                        firstLetter = j - maxLength + 1;
+                    }
+                } else currentLength = 0;
+        }
+        // Аналогично рассматриваем диагонали выше главной, индекс символа в первой строке j+i, во второй - j.
+        for (int i = 1; i < first.length(); i++) {
+            currentLength = 0;
+            for (int j = 0; j+i < first.length() && j < second.length(); j++)
+                if (first.charAt(i + j) == second.charAt(j)) {
+                    currentLength += 1;
+                    if (currentLength == maxLength && firstLetter > i + j - maxLength + 1)
+                        firstLetter = i + j - maxLength + 1;
+                    if (currentLength > maxLength) {
+                        maxLength = currentLength;
+                        firstLetter = i + j - maxLength + 1;
+                    }
+                } else currentLength = 0;
+        }
+        if (firstLetter != -1) return(first.substring(firstLetter, firstLetter + maxLength));
+        else return "";
     }
 
     /**
@@ -110,8 +150,25 @@ public class JavaAlgorithms {
      *
      * Справка: простым считается число, которое делится нацело только на 1 и на себя.
      * Единица простым числом не считается.
+     *
+     * сложность O(n*log(log(n)))
+     * память S(n)
      */
     static public int calcPrimesNumber(int limit) {
-        throw new NotImplementedError();
+        if (limit <=1) return 0;
+        boolean[] notPrime = new boolean[limit];
+        int numberOfPrimes = 0;
+        notPrime[0] = true;
+        for (int i = 1; i <= sqrt(limit); i++) {
+            if (!notPrime[i-1]) {
+                int j = i;
+                while (i*j <= limit) {
+                    notPrime[i*j-1] = true;
+                    j++;
+                }
+            }
+        }
+        for (int i = 0; i < limit; i++) if (!notPrime[i]) numberOfPrimes +=1;
+        return numberOfPrimes;
     }
 }
