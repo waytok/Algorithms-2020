@@ -44,6 +44,10 @@ abstract class AbstractOpenAddressingSetTest {
         for (iteration in 1..100) {
             val bitsNumber = random.nextInt(4) + 6
             val openAddressingSet = create<Int>(bitsNumber)
+            assertFalse(
+                openAddressingSet.remove(0),
+                "Attempt of the removal of the element from the empty set should return false."
+            )
             for (i in 1..50) {
                 val firstInt = random.nextInt(32)
                 val secondInt = firstInt + (1 shl bitsNumber)
@@ -101,7 +105,7 @@ abstract class AbstractOpenAddressingSetTest {
             while (iterator1.hasNext()) {
                 assertEquals(
                     iterator2.next(), iterator1.next(),
-                    "Calling OpenAddressingSetIterator.hasNext() changes the state of the iterator."
+                    "Calling TrieIterator.hasNext() changes the state of the iterator."
                 )
             }
             val openAddressingSetIter = openAddressingSet.iterator()
@@ -111,11 +115,16 @@ abstract class AbstractOpenAddressingSetTest {
             }
             assertTrue(
                 controlSet.isEmpty(),
-                "OpenAddressingSetIterator doesn't traverse the entire set."
+                "TrieIterator doesn't traverse the entire set."
             )
-            assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
+            assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
                 openAddressingSetIter.next()
             }
+            controlSet.clear()
+            controlSet.add("1")
+            controlSet.add("1")
+            assertTrue(controlSet.size == 1)
+
             println("All clear!")
         }
     }
@@ -155,7 +164,7 @@ abstract class AbstractOpenAddressingSetTest {
             }
             assertEquals(
                 0, counter,
-                "OpenAddressingSetIterator.remove() changed iterator position: ${abs(counter)} elements were ${if (counter > 0) "skipped" else "revisited"}."
+                "TrieIterator.remove() changed iterator position: ${abs(counter)} elements were ${if (counter > 0) "skipped" else "revisited"}."
             )
             assertEquals(
                 controlSet.size, openAddressingSet.size,
@@ -173,6 +182,16 @@ abstract class AbstractOpenAddressingSetTest {
                     "Open addressing set has the element $element that is not in control set."
                 )
             }
+            openAddressingSet.clear()
+            openAddressingSet.add("1")
+            openAddressingSet.add("2")
+            openAddressingSet.add("3")
+            val newIterator = openAddressingSet.iterator()
+            while (newIterator.hasNext()) {
+                newIterator.next()
+                newIterator.remove()
+            }
+            assertTrue(openAddressingSet.size == 0)
             println("All clear!")
         }
     }
